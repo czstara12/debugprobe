@@ -52,4 +52,5 @@ jobs:
         with:
           name: debugprobe-firmwares
           path: |
-            build
+            build/debugprobe.uf2
+            build/debugprobe_on_pico.uf2
