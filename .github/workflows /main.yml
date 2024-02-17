@@ -1,0 +1,58 @@
+name: Build and Test
+
+on:
+  push:
+    branches: [ hezhou ]
+  pull_request:
+    branches: [ hezhou ]
+
+jobs:
+  build-debugprobe:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install dependencies and Pico SDK
+      run: |
+        sudo apt-get update
+        sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
+        mkdir dependencies
+        git clone --recurse-submodules https://github.com/raspberrypi/pico-sdk.git dependencies/pico-sdk
+        echo "PICO_SDK_PATH=${{ github.workspace }}/dependencies/pico-sdk" >> $GITHUB_ENV
+
+    - name: Initialize and update submodules
+      run: |
+        git submodule update --init
+
+    - name: Create and switch to the build directory
+      run: |
+        mkdir build
+        cd build
+
+    - name: Run CMake for Debug Probe
+      run: |
+        cd build
+        cmake ..
+
+    - name: Build Debug Probe firmware
+      run: |
+        cd build
+        make
+
+    - name: Run CMake for Debug Probe on Pico
+      run: |
+        cd build
+        cmake -DDEBUG_ON_PICO=ON ..
+
+    - name: Build Debug Probe firmware for Pico
+      run: |
+        cd build
+        make
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+        name: debugprobe-firmwares
+        path: |
+          build/debugprobe.uf2
