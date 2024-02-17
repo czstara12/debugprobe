@@ -9,13 +9,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install dependencies and Pico SDK
-        run: |
-          sudo apt-get update
-          sudo apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi libstdc++-arm-none-eabi-newlib
-          mkdir dependencies
-          git clone --recurse-submodules https://github.com/raspberrypi/pico-sdk.git dependencies/pico-sdk
-          echo "PICO_SDK_PATH=${{ github.workspace }}/dependencies/pico-sdk" >> $GITHUB_ENV
+      - name: RaspberryPiPicoBuild
+        # You may pin to the exact commit or the version.
+        # uses: Fortinbra/RaspberryPiPicoBuild@02a18645868bbd4c4a250f951ac4d7da9f80761b
+        uses: Fortinbra/RaspberryPiPicoBuild@v3
+          
 
       - name: Initialize and update submodules
         run: |
@@ -47,8 +45,8 @@ jobs:
           make
 
       - name: Archive artifacts
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v4.3.1
         with:
           name: debugprobe-firmwares
           path: |
-            build/debugprobe.uf2
+            build
