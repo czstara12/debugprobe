@@ -1,10 +1,6 @@
 name: Build and Test
 
-on:
-  push:
-    branches: [ hezhou ]
-  pull_request:
-    branches: [ hezhou ]
+on: [push]
 
 jobs:
   build-debugprobe:
