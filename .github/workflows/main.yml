@@ -1,0 +1,52 @@
+name: Build and Release
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+env:
+  # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
+  BUILD_TYPE: Release
+
+jobs:
+  build-debugprobe:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: RaspberryPiPicoBuild
+        # You may pin to the exact commit or the version.
+        # uses: Fortinbra/RaspberryPiPicoBuild@02a18645868bbd4c4a250f951ac4d7da9f80761b
+        uses: Fortinbra/RaspberryPiPicoBuild@v3
+        
+      - name: Setup environment
+        run: |
+          echo "PICO_SDK_PATH=${{github.workspace}}/pico-sdk" >> $GITHUB_ENV
+
+      - name: Initialize and update submodules
+        run: |
+          git submodule update --init
+
+      - name: build
+        run: |
+          mkdir build
+          cd build
+          cmake ..
+          make
+
+      - name: build on Pico
+        run: |
+          cd build
+          cmake -DDEBUG_ON_PICO=ON ..
+          make
+
+      - name: Archive artifacts
+        uses: actions/upload-artifact@v4.3.1
+        with:
+          name: debugprobe-firmwares
+          path: |
+            build/debugprobe.uf2
+            build/debugprobe_on_pico.uf2
