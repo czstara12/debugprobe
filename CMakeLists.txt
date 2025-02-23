@@ -1,5 +1,30 @@
 cmake_minimum_required(VERSION 3.12)
 
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
+# Initialise pico_sdk from installed location
+# (note this can come from environment, CMake cache etc)
+
+# == DO NOT EDIT THE FOLLOWING LINES for the Raspberry Pi Pico VS Code Extension to work ==
+if(WIN32)
+    set(USERHOME $ENV{USERPROFILE})
+else()
+    set(USERHOME $ENV{HOME})
+endif()
+set(sdkVersion 2.1.0)
+set(toolchainVersion 13_3_Rel1)
+set(picotoolVersion 2.1.0)
+set(picoVscode ${USERHOME}/.pico-sdk/cmake/pico-vscode.cmake)
+if (EXISTS ${picoVscode})
+    include(${picoVscode})
+endif()
+# ====================================================================================
+set(PICO_BOARD pico CACHE STRING "Board type")
+
+
 include(pico_sdk_import.cmake)
 
 set(FREERTOS_KERNEL_PATH ${CMAKE_CURRENT_LIST_DIR}/freertos)
@@ -54,17 +79,17 @@ if (DEBUG_ON_PICO)
     target_compile_definitions (debugprobe PRIVATE
 	DEBUG_ON_PICO=1
     )
-    if (PICO_BOARD STREQUAL "pico")
-        set_target_properties(debugprobe PROPERTIES
-            OUTPUT_NAME "debugprobe_on_pico"
-        )
-    elseif (PICO_BOARD STREQUAL "pico2")
-        set_target_properties(debugprobe PROPERTIES
-            OUTPUT_NAME "debugprobe_on_pico2"
-        )
-    else ()
-        message(SEND_ERROR "Unsupported board ${PICO_BOARD}")
-    endif ()
+    # if (PICO_BOARD STREQUAL "pico")
+    #     set_target_properties(debugprobe PROPERTIES
+    #         OUTPUT_NAME "debugprobe_on_pico"
+    #     )
+    # elseif (PICO_BOARD STREQUAL "pico2")
+    #     set_target_properties(debugprobe PROPERTIES
+    #         OUTPUT_NAME "debugprobe_on_pico2"
+    #     )
+    # else ()
+    #     message(SEND_ERROR "Unsupported board ${PICO_BOARD}")
+    # endif ()
 endif ()
 
 
