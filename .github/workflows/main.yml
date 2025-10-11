@@ -5,6 +5,8 @@ on:
     branches: [ "hezhou" ]
   pull_request:
     branches: [ "hezhou" ]
+  workflow_dispatch:
+    branches: [ "hezhou" ]
 
 env:
   # Customize the CMake build type here (Release, Debug, RelWithDebInfo, etc.)
