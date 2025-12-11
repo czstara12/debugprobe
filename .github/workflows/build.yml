@@ -1,0 +1,74 @@
+name: Build Debugprobe
+
+on:
+  workflow_dispatch:
+    inputs:
+      build_target:
+        description: 'Build target'
+        required: true
+        default: 'debug_probe'
+        type: choice
+        options:
+          - debug_probe
+          - pico
+          - pico2
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y cmake gcc-arm-none-eabi build-essential git
+
+      - name: Set up Pico SDK
+        run: |
+          git clone https://github.com/raspberrypi/pico-sdk.git ~/pico-sdk
+          echo "PICO_SDK_PATH=~/pico-sdk" >> $GITHUB_ENV
+
+      - name: Create build directory
+        run: mkdir -p build && cd build
+
+      - name: Build for Debug Probe
+        if: github.event.inputs.build_target == 'debug_probe'
+        run: |
+          cd build
+          cmake ..
+          make -j$(nproc)
+          ls -lh debugprobe.uf2
+
+      - name: Build for Pico 1
+        if: github.event.inputs.build_target == 'pico'
+        run: |
+          rm -rf build
+          mkdir build && cd build
+          cmake -DDEBUG_ON_PICO=ON ..
+          make -j$(nproc)
+          ls -lh debugprobe_on_pico.uf2
+
+      - name: Build for Pico 2
+        if: github.event.inputs.build_target == 'pico2'
+        run: |
+          rm -rf build
+          mkdir build && cd build
+          cmake -DDEBUG_ON_PICO=1 -DPICO_BOARD=pico2 ..
+          make -j$(nproc)
+          ls -lh debugprobe_on_pico2.uf2
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: debugprobe-${{ github.event.inputs.build_target }}
+          path: |
+            build/debugprobe.uf2
+            build/debugprobe_on_pico.uf2
+            build/debugprobe_on_pico2.uf2
+          retention-days: 30
+          if-no-files-found: ignore
