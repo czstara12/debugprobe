@@ -26,12 +26,14 @@ jobs:
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y cmake gcc-arm-none-eabi build-essential git
+          sudo apt-get install -y cmake gcc-arm-none-eabi build-essential git pkg-config libusb-1.0-0-dev
 
       - name: Set up Pico SDK
         run: |
           git clone https://github.com/raspberrypi/pico-sdk.git ~/pico-sdk
-          echo "PICO_SDK_PATH=~/pico-sdk" >> $GITHUB_ENV
+          cd ~/pico-sdk
+          git submodule update --init --recursive
+          echo "PICO_SDK_PATH=$HOME/pico-sdk" >> $GITHUB_ENV
 
       - name: Create build directory
         run: mkdir -p build && cd build
