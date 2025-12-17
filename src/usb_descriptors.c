@@ -138,7 +138,7 @@ char const* string_desc_arr [] =
   PROBE_PRODUCT_STRING, // 2: Product
   usb_serial,     // 3: Serial, uses flash unique ID
   "CMSIS-DAP v1 Interface", // 4: Interface descriptor for HID transport
-  "CMSIS-DAP v2 Interface", // 5: Interface descriptor for Bulk transport
+  "CMSIS-DAP v2", // 5: Interface descriptor for Bulk transport
   "CDC-ACM UART Interface", // 6: Interface descriptor for CDC
 };
 
