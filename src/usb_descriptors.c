@@ -68,9 +68,9 @@ uint8_t const * tud_descriptor_device_cb(void)
 
 enum
 {
-  ITF_NUM_PROBE, // Old versions of Keil MDK only look at interface 0
   ITF_NUM_CDC_COM,
   ITF_NUM_CDC_DATA,
+  ITF_NUM_PROBE, // Old versions of Keil MDK only look at interface 0
   ITF_NUM_TOTAL
 };
 
@@ -100,6 +100,8 @@ uint8_t const * tud_hid_descriptor_report_cb(uint8_t itf)
 uint8_t desc_configuration[] =
 {
   TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0, 100),
+  // Interface 1 + 2
+  TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_COM, 6, CDC_NOTIFICATION_EP_NUM, 64, CDC_DATA_OUT_EP_NUM, CDC_DATA_IN_EP_NUM, 64),
   // Interface 0
 #if (PROBE_DEBUG_PROTOCOL == PROTO_DAP_V1)
   // HID (named interface)
@@ -111,8 +113,6 @@ uint8_t desc_configuration[] =
   // Bulk
   TUD_VENDOR_DESCRIPTOR(ITF_NUM_PROBE, 0, DAP_OUT_EP_NUM, DAP_IN_EP_NUM, 64),
 #endif
-  // Interface 1 + 2
-  TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_COM, 6, CDC_NOTIFICATION_EP_NUM, 64, CDC_DATA_OUT_EP_NUM, CDC_DATA_IN_EP_NUM, 64),
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -122,7 +122,8 @@ uint8_t const * tud_descriptor_configuration_cb(uint8_t index)
 {
   (void) index; // for multiple configurations
   /* Hack in CAP_BREAK support */
-  desc_configuration[CONFIG_TOTAL_LEN - TUD_CDC_DESC_LEN + 8 + 9 + 5 + 5 + 4 - 1] = 0x6;
+  const uint8_t cdc_cap_break_idx = TUD_CONFIG_DESC_LEN + 8 + 9 + 5 + 5 + 4 - 1;
+  desc_configuration[cdc_cap_break_idx] = 0x6;
   return desc_configuration;
 }
 
